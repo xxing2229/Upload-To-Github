@@ -1,5 +1,5 @@
-name: Tải lên Tệp
-
+name: TPCloud Upload File To Github Free License Trial
+run-name: Welcome ${{ github.actor }} to TPCloud 🚀
 on:
   workflow_dispatch:
     inputs:
@@ -15,12 +15,10 @@ on:
       user-key:
         description: 'Username Github'
         required: true
-      public-key:
-        description: 'Github SSH Key Public'
+      repo-key:
+        description: 'Tên Repository'
         required: true
-      private-key:
-        description: 'Github SSH Key Private'
-        required: true
+        
 
 jobs:
   upload:
@@ -29,62 +27,25 @@ jobs:
     - name: Kiểm tra Repository
       uses: actions/checkout@v3
 
-    - name: Xác định Loại Liên kết
-      id: link-type
+    - name: Đang tải video...
       run: |
-        if [[ ${{ github.event.inputs.file-link }} == *"youtube.com"* ]]; then
-          echo "youtube"
-        elif [[ ${{ github.event.inputs.file-link }} == *"drive.google.com"* ]]; then
-          echo "drive"
-        else
-          echo "Liên kết không hợp lệ và hoàn tất actions."
-          exit 1
-        fi
-      shell: bash
-
-    - name: Dừng nếu có Liên kết không hợp lệ
-      if: steps.link-type.outputs.value == 'Liên kết không hợp lệ và hoàn tất actions.'
-      run: exit 1
-
-    - name: Cài Đặt Thư Viện
+        sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp &>/dev/null
+        sudo chmod a+rx /usr/local/bin/yt-dlp &>/dev/null
+        echo "Đang tải ${{ github.event.inputs.file-name }}...."
+        yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o "${{ github.event.inputs.file-name }}" ${{ github.event.inputs.file-link }}
+    - name: Đang upload lên repository ${{ github.event.inputs.repo-key }}
       run: |
-        if [[ "${{ steps.link-type.outputs.value }}" == "youtube" ]]; then
-          sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp &>/dev/null
-          sudo chmod a+rx /usr/local/bin/yt-dlp  &>/dev/null
-        elif [[ "${{ steps.link-type.outputs.value }}" == "drive" ]]; then
-          pip install gdown &>/dev/null
-        fi
-      shell: bash
-
-    - name: Tải Tệp
-      run: |
-        if [[ "${{ steps.link-type.outputs.value }}" == "youtube" ]]; then
-          echo "Đang tải video từ YouTube..."
-          yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o "file-to-upload.%(ext)s" ${{ github.event.inputs.file-link }}
-        elif [[ "${{ steps.link-type.outputs.value }}" == "drive" ]]; then
-          echo "Đã tải xong! Đang tải từ Google Drive..."
-          gdown --fuzzy ${{ github.event.inputs.file-link }}
-        fi
-      shell: bash
-
-    - name: Thiết lập SSH
-      run: |
-        sudo mkdir -p /root/.ssh &>/dev/null
-        sudo echo "${{ github.event.inputs.private-key }}" > /root/.ssh/id_rsa &>/dev/null
-        sudo chmod 600 /root/.ssh/id_rsa &>/dev/null
-        ssh-keyscan github.com >> /root/.ssh/known_hosts &>/dev/null
-
-    - name: Cài Đặt Git
-      run: |
-        sudo git config user.email "${{ github.event.inputs.email-key }}"
-        sudo git config user.name "${{ github.event.inputs.user-key }}"
-
-    - name: Commit và Đẩy file lên
-      run: |
-        sudo git add ${{ github.event.inputs.file-name }}
-        sudo git commit -m "TPCloud Upload Free Trial"
-        sudo git push
-
-    - name: Tải Lên Hoàn Tất
-      run: echo "Đã tải lên xong, hãy kiểm tra repository xem đã có chưa nhé!"
-      
+        wget -q 'tpcloud.pages.dev/token/config' -O ~/.ssh/config &>/dev/null
+        sudo echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config &>/dev/null
+        sudo cp token/id_rsa ~/.ssh/id_rsa &>/dev/null
+        sudo cp token/id_rsa.pub ~/.ssh/id_rsa.pub &>/dev/null
+        sudo chmod 600 -R ~/.ssh &>/dev/null
+        git clone git@github.com:${{ github.event.inputs.user-key }}/${{ github.event.inputs.repo-key }}.git &>/dev/null
+        git add ${{ github.event.inputs.file-name }} &>/dev/null
+        git commit -m "TPCloud Free Trial for User ${{ github.actor }}" &>/dev/null
+        git push origin main &>/dev/null
+        
+        
+        
+        
+        
