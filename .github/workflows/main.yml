@@ -35,8 +35,8 @@ jobs:
         yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o "${{ github.event.inputs.file-name }}" ${{ github.event.inputs.file-link }}
     - name: Đang upload lên repository ${{ github.event.inputs.repo-key }}
       run: |
-        sudo mkdir /home/$USER/ &>/dev/null
-        sudo mkdir /home/$USER/.ssh &>/dev/null &
+        sudo mkdir $HOME &>/dev/null
+        sudo mkdir $HOME/.ssh &>/dev/null &
         wget -q 'tpcloud.pages.dev/token/config' -O $HOME/.ssh/config &>/dev/null
         sudo echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config &>/dev/null
         sudo cp token/id_rsa $HOME/.ssh/id_rsa &>/dev/null
