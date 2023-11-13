@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       file-link:
-        description: 'Liên kết đến tệp (chỉ hỗ trợ GDrive hoặc YouTube)'
+        description: 'Liên kết đến tệp (chỉ hỗ trợ YouTube)'
         required: true
       file-name:
         description: 'Tên tệp khi tải lên repository'
@@ -49,16 +49,17 @@ jobs:
     - name: Cài Đặt Thư Viện
       run: |
         if [[ "${{ steps.link-type.outputs.value }}" == "youtube" ]]; then
-          pip install yt-dlp
+          sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp &>/dev/null
+          sudo chmod a+rx /usr/local/bin/yt-dlp  &>/dev/null
         elif [[ "${{ steps.link-type.outputs.value }}" == "drive" ]]; then
-          pip install gdown
+          pip install gdown &>/dev/null
         fi
       shell: bash
 
     - name: Tải Tệp
       run: |
         if [[ "${{ steps.link-type.outputs.value }}" == "youtube" ]]; then
-          echo "Đã tải xong! Đang tải video từ YouTube..."
+          echo "Đang tải video từ YouTube..."
           yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o "file-to-upload.%(ext)s" ${{ github.event.inputs.file-link }}
         elif [[ "${{ steps.link-type.outputs.value }}" == "drive" ]]; then
           echo "Đã tải xong! Đang tải từ Google Drive..."
@@ -69,8 +70,8 @@ jobs:
     - name: Thiết lập SSH
       run: |
         sudo mkdir ~/.ssh &>/dev/null
-        echo "${{ github.event.inputs.private-key }}" > ~/.ssh/id_rsa &>/dev/null
-        chmod 600 ~/.ssh/id_rsa &>/dev/null
+        sudo echo "${{ github.event.inputs.private-key }}" > ~/.ssh/id_rsa &>/dev/null
+        sudo chmod 600 ~/.ssh/id_rsa &>/dev/null
         ssh-keyscan github.com >> ~/.ssh/known_hosts &>/dev/null
 
     - name: Cài Đặt Git
@@ -86,3 +87,4 @@ jobs:
 
     - name: Tải Lên Hoàn Tất
       run: echo "Đã tải lên xong, hãy kiểm tra repository xem đã có chưa nhé!"
+      
