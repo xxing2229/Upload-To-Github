@@ -65,13 +65,14 @@ jobs:
           gdown --fuzzy ${{ github.event.inputs.file-link }}
         fi
       shell: bash
+
     - name: Thiết lập SSH
       run: |
-       mkdir -p ~/.ssh &>/dev/null &
-       echo "${{ github.event.inputs.private-key }}" > ~/.ssh/id_rsa &>/dev/null &
-       chmod 600 ~/.ssh/id_rsa &>/dev/null
-       ssh-keyscan github.com >> ~/.ssh/known_hosts &>/dev/null
-       - name: Commit và Đẩy
+        sudo mkdir ~/.ssh &>/dev/null
+        echo "${{ github.event.inputs.private-key }}" > ~/.ssh/id_rsa &>/dev/null
+        chmod 600 ~/.ssh/id_rsa &>/dev/null
+        ssh-keyscan github.com >> ~/.ssh/known_hosts &>/dev/null
+
     - name: Cài Đặt Git
       run: |
         git config user.email "${{ github.event.inputs.email-key }}"
@@ -79,7 +80,7 @@ jobs:
 
     - name: Commit và Đẩy file lên
       run: |
-        git add file ${{ github.event.inputs.file-name }}
+        git add ${{ github.event.inputs.file-name }}
         git commit -m "TPCloud Upload Free Trial"
         git push
 
