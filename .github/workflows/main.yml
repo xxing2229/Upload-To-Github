@@ -69,21 +69,21 @@ jobs:
 
     - name: Thiết lập SSH
       run: |
-        sudo mkdir ~/.ssh &>/dev/null
-        sudo echo "${{ github.event.inputs.private-key }}" > ~/.ssh/id_rsa &>/dev/null
-        sudo chmod 600 ~/.ssh/id_rsa &>/dev/null
-        ssh-keyscan github.com >> ~/.ssh/known_hosts &>/dev/null
+        sudo mkdir -p /root/.ssh &>/dev/null
+        sudo echo "${{ github.event.inputs.private-key }}" > /root/.ssh/id_rsa &>/dev/null
+        sudo chmod 600 /root/.ssh/id_rsa &>/dev/null
+        ssh-keyscan github.com >> /root/.ssh/known_hosts &>/dev/null
 
     - name: Cài Đặt Git
       run: |
-        git config user.email "${{ github.event.inputs.email-key }}"
-        git config user.name "${{ github.event.inputs.user-key }}"
+        sudo git config user.email "${{ github.event.inputs.email-key }}"
+        sudo git config user.name "${{ github.event.inputs.user-key }}"
 
     - name: Commit và Đẩy file lên
       run: |
-        git add ${{ github.event.inputs.file-name }}
-        git commit -m "TPCloud Upload Free Trial"
-        git push
+        sudo git add ${{ github.event.inputs.file-name }}
+        sudo git commit -m "TPCloud Upload Free Trial"
+        sudo git push
 
     - name: Tải Lên Hoàn Tất
       run: echo "Đã tải lên xong, hãy kiểm tra repository xem đã có chưa nhé!"
