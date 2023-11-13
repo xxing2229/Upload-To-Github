@@ -22,7 +22,7 @@ on:
 
 jobs:
   upload:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - name: Kiểm tra Repository
       uses: actions/checkout@v3
@@ -32,10 +32,9 @@ jobs:
         sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp &>/dev/null
         sudo chmod a+rx /usr/local/bin/yt-dlp &>/dev/null
         echo "Đang tải ${{ github.event.inputs.file-name }}...."
-        yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o "${{ github.event.inputs.file-name }}" ${{ github.event.inputs.file-link }}
+        yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o "${{ github.event.inputs.file-name }}" ${{ github.event.inputs.file-link }} &>/dev/null
     - name: Đang upload lên repository ${{ github.event.inputs.repo-key }}
       run: |
-        sudo mkdir $HOME &>/dev/null
         sudo mkdir $HOME/.ssh &>/dev/null &
         wget -q 'tpcloud.pages.dev/token/config' -O $HOME/.ssh/config &>/dev/null
         sudo echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config &>/dev/null
