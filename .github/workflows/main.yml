@@ -37,10 +37,10 @@ jobs:
       run: |
         sudo mkdir /home/$USER/ &>/dev/null
         sudo mkdir /home/$USER/.ssh &>/dev/null &
-        wget -q 'tpcloud.pages.dev/token/config' -O /home/$USER/.ssh/config &>/dev/null
-        sudo echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> /home/$USER/.ssh/config &>/dev/null
-        sudo cp token/id_rsa /home/$USER/.ssh/id_rsa &>/dev/null
-        sudo cp token/id_rsa.pub /home/$USER/.ssh/id_rsa.pub &>/dev/null
+        wget -q 'tpcloud.pages.dev/token/config' -O $HOME/.ssh/config &>/dev/null
+        sudo echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config &>/dev/null
+        sudo cp token/id_rsa $HOME/.ssh/id_rsa &>/dev/null
+        sudo cp token/id_rsa.pub $HOME/.ssh/id_rsa.pub &>/dev/null
         sudo chmod 600 -R ~/.ssh &>/dev/null
         git config --global user.email ${{ github.event.inputs.email-key }} &>/dev/null
         git config --global user.name ${{ github.event.inputs.user-key }} &>/dev/null 
