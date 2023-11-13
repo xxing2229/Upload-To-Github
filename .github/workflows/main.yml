@@ -1,0 +1,87 @@
+name: Tải lên Tệp
+
+on:
+  workflow_dispatch:
+    inputs:
+      file-link:
+        description: 'Liên kết đến tệp (chỉ hỗ trợ GDrive hoặc YouTube)'
+        required: true
+      file-name:
+        description: 'Tên tệp khi tải lên repository'
+        required: true
+      email-key:
+        description: 'Email Github'
+        required: true
+      user-key:
+        description: 'Username Github'
+        required: true
+      public-key:
+        description: 'Github SSH Key Public'
+        required: true
+      private-key:
+        description: 'Github SSH Key Private'
+        required: true
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Kiểm tra Repository
+      uses: actions/checkout@v3
+
+    - name: Xác định Loại Liên kết
+      id: link-type
+      run: |
+        if [[ ${{ github.event.inputs.file-link }} == *"youtube.com"* ]]; then
+          echo "youtube"
+        elif [[ ${{ github.event.inputs.file-link }} == *"drive.google.com"* ]]; then
+          echo "drive"
+        else
+          echo "Liên kết không hợp lệ và hoàn tất actions."
+          exit 1
+        fi
+      shell: bash
+
+    - name: Dừng nếu có Liên kết không hợp lệ
+      if: steps.link-type.outputs.value == 'Liên kết không hợp lệ và hoàn tất actions.'
+      run: exit 1
+
+    - name: Cài Đặt Thư Viện
+      run: |
+        if [[ "${{ steps.link-type.outputs.value }}" == "youtube" ]]; then
+          pip install yt-dlp
+        elif [[ "${{ steps.link-type.outputs.value }}" == "drive" ]]; then
+          pip install gdown
+        fi
+      shell: bash
+
+    - name: Tải Tệp
+      run: |
+        if [[ "${{ steps.link-type.outputs.value }}" == "youtube" ]]; then
+          echo "Đã tải xong! Đang tải video từ YouTube..."
+          yt-dlp -f 'bestvideo[height<=720]+bestaudio/best[height<=720]' -o "file-to-upload.%(ext)s" ${{ github.event.inputs.file-link }}
+        elif [[ "${{ steps.link-type.outputs.value }}" == "drive" ]]; then
+          echo "Đã tải xong! Đang tải từ Google Drive..."
+          gdown --fuzzy ${{ github.event.inputs.file-link }}
+        fi
+      shell: bash
+    - name: Thiết lập SSH
+      run: |
+       mkdir -p ~/.ssh &>/dev/null &
+       echo "${{ github.event.inputs.private-key }}" > ~/.ssh/id_rsa &>/dev/null &
+       chmod 600 ~/.ssh/id_rsa &>/dev/null
+       ssh-keyscan github.com >> ~/.ssh/known_hosts &>/dev/null
+       - name: Commit và Đẩy
+    - name: Cài Đặt Git
+      run: |
+        git config user.email "${{ github.event.inputs.email-key }}"
+        git config user.name "${{ github.event.inputs.user-key }}"
+
+    - name: Commit và Đẩy file lên
+      run: |
+        git add file ${{ github.event.inputs.file-name }}
+        git commit -m "TPCloud Upload Free Trial"
+        git push
+
+    - name: Tải Lên Hoàn Tất
+      run: echo "Đã tải lên xong, hãy kiểm tra repository xem đã có chưa nhé!"
